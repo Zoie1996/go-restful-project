@@ -60,6 +60,14 @@ type Redis struct {
 
 var RedisSetting = &Redis{}
 
+type Swagger struct {
+	ApiPath         string
+	SwaggerPath     string
+	SwaggerFilePath string
+}
+
+var SwaggerSetting = &Swagger{}
+
 var cfg *ini.File
 
 // 安装程序初始化配置实例
@@ -74,6 +82,7 @@ func Setup() {
 	mapTo("server", ServerSetting)
 	mapTo("database", DatabaseSetting)
 	mapTo("redis", RedisSetting)
+	mapTo("swagger", SwaggerSetting)
 
 	AppSetting.ImageMaxSize = AppSetting.ImageMaxSize * 1024 * 1024
 	ServerSetting.ReadTimeout = ServerSetting.ReadTimeout * time.Second

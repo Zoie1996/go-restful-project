@@ -4,6 +4,15 @@ import (
 	"github.com/emicklei/go-restful"
 )
 
+type AddUserParam struct {
+	username string
+	password string
+	name     string
+	phone    string
+	remarks  string
+	role     int
+}
+
 func UsersRegister(container *restful.Container) {
 	ws := new(restful.WebService)
 
@@ -20,15 +29,6 @@ func UsersRegister(container *restful.Container) {
 	ws.Route(ws.GET("/{user-id}").To(GetUser).
 		Doc("获取用户详情").
 		Param(ws.PathParameter("user-id", "用户ID").DataType("string")))
-
-	type AddUserParam struct {
-		username string
-		password string
-		name     string
-		phone    string
-		remarks  string
-		role     int
-	}
 
 	ws.Route(ws.POST("").To(CreateUser).
 		Doc("添加用户").
