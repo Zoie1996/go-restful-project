@@ -45,7 +45,7 @@ func GetUser(request *restful.Request, response *restful.Response) {
 	// 获取用户详情
 	userprofile, err := models.GetUser(user_id)
 	if err != nil {
-		response.WriteHeaderAndEntity(http.StatusNotFound, e.GetInfo(e.NOT_FOUND))
+		response.WriteHeaderAndEntity(http.StatusNotFound, e.GetInfo(err))
 		return
 	}
 	user := models.UserDetails{
@@ -117,7 +117,7 @@ func CreateUser(request *restful.Request, response *restful.Response) {
 	// 检查是否存在相同的用户名
 	exists, err := models.ExistUserByUserName(usr.UserName)
 	if err != nil {
-		response.WriteHeaderAndEntity(http.StatusNotFound, e.GetInfo(e.ERROR))
+		response.WriteHeaderAndEntity(http.StatusNotFound, e.GetInfo(err))
 		return
 	}
 	if exists {
@@ -126,7 +126,7 @@ func CreateUser(request *restful.Request, response *restful.Response) {
 	}
 	// 检查角色是否存在
 	code := role_service.CheckRoleExist(usr.Role)
-	if code != 200 {
+	if code != e.SUCCESS {
 		response.WriteHeaderAndEntity(http.StatusNotFound, e.GetInfo(code))
 		return
 	}
@@ -153,7 +153,7 @@ func UpdateUser(request *restful.Request, response *restful.Response) {
 	}
 	// 检查用户是否存在
 	code := CheckUserExist(user_id)
-	if code != 200 {
+	if code != e.SUCCESS {
 		response.WriteHeaderAndEntity(http.StatusNotFound, e.GetInfo(code))
 		return
 	}
@@ -161,8 +161,7 @@ func UpdateUser(request *restful.Request, response *restful.Response) {
 	usr := new(models.EditUserParam)
 	err = request.ReadEntity(&usr)
 	if err != nil {
-		log.Printf("[UpdateUser] id %s", err)
-		// response.WriteHeaderAndEntity(http.StatusBadRequest, e.GetInfo(e.ERROR))
+		response.WriteHeaderAndEntity(http.StatusBadRequest, e.GetInfo(err))
 		return
 	}
 
@@ -181,7 +180,7 @@ func UpdateUser(request *restful.Request, response *restful.Response) {
 	// 检查角色是否存在
 	if usr.Role != 0 {
 		code = role_service.CheckRoleExist(usr.Role)
-		if code != 200 {
+		if code != e.SUCCESS {
 			response.WriteHeaderAndEntity(http.StatusBadRequest, e.GetInfo(code))
 			return
 		}
@@ -198,8 +197,7 @@ func UpdateUser(request *restful.Request, response *restful.Response) {
 
 	err = models.UpdateUser(user_id, data)
 	if err != nil {
-		log.Printf("[UpdateUser] id %s", err)
-		response.WriteHeaderAndEntity(http.StatusBadRequest, e.GetInfo(e.ERROR))
+		response.WriteHeaderAndEntity(http.StatusBadRequest, e.GetInfo(err))
 		return
 	}
 	user, err := models.GetUser(user_id)
@@ -210,6 +208,7 @@ func UpdateUser(request *restful.Request, response *restful.Response) {
 	response.WriteEntity(user)
 }
 
+// DeleteUser 删除用户
 func DeleteUser(request *restful.Request, response *restful.Response) {
 	// 获取用户id
 	id := request.PathParameter("user-id")
@@ -219,14 +218,13 @@ func DeleteUser(request *restful.Request, response *restful.Response) {
 	}
 	// 检查用户是否存在
 	code := CheckUserExist(user_id)
-	if code != 200 {
+	if code != e.SUCCESS {
 		response.WriteHeaderAndEntity(http.StatusNotFound, e.GetInfo(code))
 		return
 	}
 	err = models.DeleteUser(user_id)
 	if err != nil {
-		log.Printf("[DeleteUser] id %s", err)
-		response.WriteHeaderAndEntity(http.StatusBadRequest, e.GetInfo(e.ERROR))
+		response.WriteHeaderAndEntity(http.StatusBadRequest, e.GetInfo(err))
 		return
 	}
 	response.WriteHeader(http.StatusNoContent)
